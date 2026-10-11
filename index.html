@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Empty Desk — Homework</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,500&family=Poppins:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --paper:#fffdfa; --ink:#2b2b28; --soft:#6b6a63; --line:rgba(43,43,40,0.14);
+    --pink:#f3bfcc; --pink-d:#c96f89; --pinkbg:#fdeef2;
+    --blue:#c3dde4; --blue-d:#5b93a3; --blue-bg:#e6f1f4;
+    --green:#cfdfb4; --green-d:#7c9a56;
+    --amber:#fff1d6; --amber-d:#c9862e;
+    --chip:#f3d9c3; --chip-ink:#5a3a1c;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:#eee9de; }
+  body{ font-family:'Poppins',system-ui,sans-serif; color:var(--ink); font-size:14.5px; line-height:1.55; padding:24px 10px 70px; }
+  h1,h2{ font-family:'Playfair Display',Georgia,serif; margin:0; }
+
+  .sheet{ max-width:860px; margin:0 auto; background:var(--paper); box-shadow:0 20px 50px rgba(0,0,0,.2); padding:40px 46px 46px; }
+  .head{ text-align:center; margin-bottom:22px; }
+  .head h1{ font-size:clamp(28px,6vw,38px); }
+  .head .sub{ font-size:12.5px; color:var(--soft); letter-spacing:.08em; text-transform:uppercase; margin-top:6px; }
+
+  .scene{ border-left:3px solid var(--amber-d); background:var(--amber); padding:12px 18px; border-radius:0 12px 12px 0; margin:0 0 22px; font-style:italic; }
+
+  .chapter{ margin:30px 0; }
+  .chead{ display:flex; align-items:center; gap:12px; margin-bottom:6px; }
+  .num{ width:30px; height:30px; border-radius:50%; display:grid; place-items:center; color:#fff; font-family:'Playfair Display',serif; font-weight:700; flex:none; }
+  .chead h2{ font-size:20px; }
+  .lead{ color:var(--soft); margin:0 0 14px 42px; font-size:13.5px; }
+
+  label.small{ font-size:12.5px; color:var(--soft); display:block; margin-bottom:4px; }
+  input[type=text], textarea{ width:100%; font:inherit; color:var(--ink); background:#fbf7ef; border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
+  textarea{ resize:vertical; }
+  input:focus, textarea:focus{ outline:2px solid var(--pink-d); outline-offset:1px; }
+
+  /* questions */
+  .qcount{ margin:0 0 10px 42px; font-size:13px; font-weight:600; color:var(--blue-d); }
+  .qlist{ display:flex; flex-wrap:wrap; gap:9px; margin:0 0 16px 42px; }
+  .q{ font:inherit; font-size:13px; border:0; cursor:pointer; background:var(--blue); color:#1d3a42; border-radius:22px; padding:8px 16px; text-align:left; }
+  .q:hover:not([disabled]){ background:#b3d2db; }
+  .q[disabled]{ cursor:default; opacity:.45; }
+  .q.asked{ background:var(--pink); color:#5a2436; opacity:1; }
+
+  .chat{ margin:0 0 6px 42px; display:flex; flex-direction:column; gap:10px; }
+  .row{ display:flex; gap:10px; align-items:flex-start; }
+  .row.me{ justify-content:flex-end; }
+  .av{ width:32px; height:32px; border-radius:50%; background:var(--blue-d); color:#fff; display:grid; place-items:center; font-weight:600; font-size:13px; flex:none; }
+  .bub{ max-width:85%; border-radius:4px 16px 16px 16px; padding:10px 14px; background:#fff; border:1px solid var(--line); }
+  .row.me .bub{ background:var(--blue-bg); border-radius:16px 4px 16px 16px; }
+  .star{ font:inherit; border:0; background:none; cursor:pointer; font-size:18px; color:var(--amber-d); padding:0 0 0 4px; align-self:flex-start; }
+  .hint{ font-size:12px; color:var(--soft); margin:2px 0 0 42px; }
+
+  .kw{ background:var(--chip); color:var(--chip-ink); border-radius:8px; padding:0 6px; font-weight:600; cursor:help; border-bottom:1px dotted var(--amber-d); }
+
+  /* step 2 */
+  .locked{ opacity:.45; pointer-events:none; filter:grayscale(.3); }
+  .lockmsg{ margin:0 0 10px 42px; font-size:13px; color:var(--pink-d); font-weight:600; }
+  .indent{ margin-left:42px; }
+  .verdict{ display:flex; flex-wrap:wrap; gap:9px; margin-bottom:14px; }
+  .verdict label{ cursor:pointer; }
+  .verdict input{ position:absolute; opacity:0; }
+  .verdict span{ display:block; background:var(--green); color:#2e3d1c; border-radius:20px; padding:8px 16px; font-size:13px; }
+  .verdict input:checked + span{ background:var(--green-d); color:#fff; }
+  .verdict input:focus-visible + span{ outline:2px solid var(--pink-d); }
+
+  .toolkit{ display:flex; flex-wrap:wrap; gap:7px; margin:6px 0 12px; }
+  .chip{ background:var(--pink); color:#5a2436; border-radius:14px; padding:4px 12px; font-size:12px; cursor:help; transition:.2s; }
+  .chip.used{ background:var(--green-d); color:#fff; }
+  .meter{ font-size:13px; margin:6px 0 12px; display:flex; gap:16px; flex-wrap:wrap; color:var(--soft); }
+  .meter b{ color:var(--ink); }
+  .ok{ color:var(--green-d); font-weight:600; }
+
+  .actions{ display:flex; flex-wrap:wrap; gap:10px; margin:18px 0 0 42px; align-items:center; }
+  .btn{ font:inherit; font-weight:600; border:0; border-radius:24px; padding:11px 26px; cursor:pointer; background:var(--pink-d); color:#fff; }
+  .btn.ghost{ background:transparent; color:var(--ink); border:1px solid var(--line); }
+  .btn[disabled]{ opacity:.5; cursor:default; }
+  .msg{ margin:10px 0 0 42px; font-size:13px; }
+  .msg.err{ color:#b0324f; } .msg.good{ color:var(--green-d); font-weight:600; }
+  #copybox{ display:none; margin:12px 0 0 42px; } #copybox.show{ display:block; }
+  #copybox textarea{ min-height:160px; font-size:12.5px; }
+
+  #tip{ position:fixed; z-index:50; max-width:260px; background:#2b2b28; color:#fff; padding:8px 12px; border-radius:10px; font-size:13px; line-height:1.4; display:none; pointer-events:none; box-shadow:0 6px 20px rgba(0,0,0,.25); }
+  #tip b{ color:var(--pink); }
+
+  .done{ display:none; text-align:center; padding:30px 10px; }
+  .done h2{ font-size:26px; margin-bottom:8px; }
+
+  @media (max-width:560px){ .sheet{ padding:26px 18px 34px; } .lead,.qcount,.qlist,.chat,.hint,.indent,.actions,.msg,#copybox{ margin-left:0; } }
+</style>
+</head>
+<body>
+<div class="sheet" id="main">
+
+  <div class="head">
+    <h1>The Empty Desk</h1>
+    <div class="sub">homework &middot; a workplace mystery</div>
+  </div>
+
+  <div class="scene">You come in on Monday. Sam’s desk is empty. No goodbye, no warning — not even a coffee mug. Something happened over the weekend, and nobody in the office can explain it.</div>
+
+  <label class="small" for="studentName">Your name</label>
+  <input type="text" id="studentName" placeholder="e.g. Anna">
+
+  <!-- STEP 1 -->
+  <div class="chapter">
+    <div class="chead"><div class="num" style="background:var(--pink-d);">1</div><h2>Ask around</h2></div>
+    <p class="lead">Nina sat next to Sam for two years. She’ll answer honestly — but you only have time for <b>5 of the 9</b> questions. Choose carefully, and tap ☆ to mark the clues you think are important. Tap the <span class="kw">highlighted words</span> to see what they mean.</p>
+    <div class="qcount" id="qcount"></div>
+    <div class="qlist" id="qlist"></div>
+    <div class="chat" id="chat"></div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="chapter">
+    <div class="chead"><div class="num" style="background:var(--blue-d);">2</div><h2>Solve the case</h2></div>
+    <div class="lockmsg" id="lockmsg">Ask at least 3 questions to unlock this part.</div>
+    <div id="step2" class="locked">
+      <p class="lead">Is this a real mystery, or just an ordinary resignation?</p>
+      <div class="verdict indent" id="verdict">
+        <label><input type="radio" name="verdict" value="Just an ordinary resignation"><span>Just an ordinary resignation</span></label>
+        <label><input type="radio" name="verdict" value="A real mystery"><span>A real mystery</span></label>
+        <label><input type="radio" name="verdict" value="Somewhere in between"><span>Somewhere in between</span></label>
+      </div>
+
+      <p class="lead">Write your theory: why did Sam <i>really</i> leave? Use at least <b>6 words</b> from the toolkit and <b>one “the…, the…”</b> sentence <i>(e.g. The more I think about it, the less mysterious it seems)</i>. Aim for 6–8 sentences.</p>
+      <div class="toolkit indent" id="toolkit"></div>
+      <div class="indent"><textarea id="theory" rows="9" placeholder="In my opinion, Sam left because…"></textarea></div>
+      <div class="meter indent">
+        <span>Toolkit words used: <b id="usedCount">0</b> / 6</span>
+        <span>“the…, the…” sentence: <b id="thethe">not yet</b></span>
+        <span>Words: <b id="wc">0</b></span>
+      </div>
+      <div class="hint">The word check is automatic and approximate — your teacher reads the text itself.</div>
+
+      <p class="lead" style="margin-top:18px;">Bonus <i>(optional)</i>: if you were Sam, what would your goodbye email to the team say? 2–3 sentences.</p>
+      <div class="indent"><textarea id="bonus" rows="3" placeholder="Dear team, …"></textarea></div>
+
+      <div class="actions">
+        <button class="btn" id="sendBtn">Send my case report</button>
+        <button class="btn ghost" id="copyBtn">Copy my answers</button>
+      </div>
+      <div class="msg" id="msg"></div>
+      <div id="copybox">
+        <div class="hint" style="margin:0 0 6px;">Select all and copy this text, then send it to your teacher.</div>
+        <textarea id="copyText" readonly></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sheet done" id="done">
+  <h2>Case report sent ✓</h2>
+  <p>Your teacher has your theory. See you at the next lesson — we’ll compare detectives’ notes.</p>
+</div>
+<div id="tip"></div>
+
+<script>
+/* ---------- SETTINGS ---------- */
+const CONFIG = { SUBMIT_URL: "https://script.google.com/macros/s/AKfycby4-CPFWszSTwFAv3Lr6Akx52lv5KPnI8N9DRAXu9AJ2-xlihuNqzZl-zMDItP8ATkT/exec" };
+const MAX_Q = 5, MIN_Q = 3, TARGET_WORDS = 6;
+
+/* ---------- DATA ---------- */
+const DEFS = {
+  "out of alignment":"to feel out of alignment with something: to feel that your values don’t match it",
+  "underutilized":"to feel underutilized: to feel your skills aren’t being used enough",
+  "safety net":"a (financial) safety net: money or help that protects you if things go wrong",
+  "pin down":"to pin down something: to find out the exact answer or detail",
+  "give notice":"to give (two weeks’) notice: to officially tell your employer you are leaving",
+  "trace":"a mark or sign that someone or something was there",
+  "good note":"to leave on a good note: to leave without bad feelings",
+  "chart your own path":"to chart your own path: to plan your own way in life or career",
+  "groundwork":"to lay the groundwork for something: to prepare the basis for it",
+  "carry forward":"to carry forward: to take something with you into the next stage",
+  "status quo":"to shake up the status quo: to change the way things normally are",
+  "holistic":"to take a holistic view of something: to look at the whole situation, not just one part",
+  "remote":"far away from places where other people live",
+  "baffle":"to baffle: to confuse someone completely",
+  "extraordinary":"very unusual or surprising",
+  "puzzle":"a puzzle: something that is difficult to understand or explain",
+  "solve":"to solve: to find the correct answer or explanation"
+};
+
+/* toolkit: label shown, key for tooltip, regex that detects it in the student's text */
+const TOOLKIT = [
+  ["a puzzle","puzzle",/puzzl/i],
+  ["to baffle","baffle",/baffl/i],
+  ["remote","remote",/\bremote/i],
+  ["extraordinary","extraordinary",/extraordinar/i],
+  ["trace","trace",/\btrace/i],
+  ["to solve","solve",/\bsolv/i],
+  ["to feel out of alignment with","out of alignment",/out of alignment/i],
+  ["to feel underutilized","underutilized",/underutili[sz]/i],
+  ["to pin down","pin down",/\bpin(ned|ning|s)?\s+down/i],
+  ["a safety net","safety net",/safety net/i],
+  ["to take a holistic view of","holistic",/holistic/i],
+  ["to give notice","give notice",/(gave|give|gives|giving|given|hand(ed|s|ing)?)\W+(\w+\W+){0,3}notice\b/i],
+  ["to leave on a good note","good note",/good note/i],
+  ["to lay the groundwork for","groundwork",/groundwork/i],
+  ["to carry forward","carry forward",/carr(y|ied|ies|ying)\W+(\w+\W+){0,2}forward/i],
+  ["to shake up the status quo","status quo",/status quo/i],
+  ["to chart your own path","chart your own path",/chart(s|ed|ing)?\W+(\w+\W+){0,2}path/i]
+];
+const THE_THE = /\bthe\s+(more|less|fewer|[a-z]+er)\b[^.!?;]*?,\s*the\s+(more|less|fewer|[a-z]+er)\b/i;
+
+const QS = [
+  {id:'mood',   q:"How did Sam seem in the weeks before leaving?",
+   a:"Honestly? Quieter than usual. Sam told me once that they felt [[out of alignment]] with the new direction of the team — and [[underutilized]], too. Most days, they said, the work used about half of what they could do."},
+  {id:'money',  q:"Did Sam have any money problems?",
+   a:"Quite the opposite. There was a rumour that Sam had a [[safety net]] — savings, maybe even another offer. Nobody could [[pin down]] which."},
+  {id:'when',   q:"When exactly did Sam leave?",
+   a:"That’s the strange part. Sam [[gave notice|give notice]] on Friday afternoon, and by Monday morning the desk was empty. Not a [[trace]] — not even a coffee mug."},
+  {id:'fight',  q:"Did Sam argue with anyone?",
+   a:"No. Sam [[left on a good note|good note]] with Emily — she even shook their hand. If there was a fight, it was a very quiet one."},
+  {id:'future', q:"Did Sam ever talk about the future?",
+   a:"Once, as a joke: “Maybe it’s time to [[chart my own path|chart your own path]].” I laughed. Now I’m not so sure it was a joke."},
+  {id:'last',   q:"Did Sam do anything unusual in the last week?",
+   a:"Well, they were [[laying the groundwork|groundwork]] for whoever takes over — handover notes, passwords, even a plan to [[carry forward]] their best ideas. Very thorough, very Sam."},
+  {id:'policy', q:"How did Sam feel about the new management plans?",
+   a:"Emily wants to [[shake up the status quo|status quo]] — new tools, new meetings, a new way of working. Sam never complained, but once asked her to take a more [[holistic view|holistic]] of the team before changing everything."},
+  {id:'contact',q:"Has anyone heard from Sam since?",
+   a:"Not a word. Sam’s phone goes straight to voicemail, and they live in a rather [[remote]] village — no neighbours, hardly any signal. It’s all a bit [[baffling|baffle]], isn’t it?"},
+  {id:'desk',   q:"Did you notice anything strange about Sam’s desk or computer?",
+   a:"Only one thing, and it’s [[extraordinary]]: the computer was wiped completely clean, but there was a note taped to the screen: “Everything you need is in the shared folder.” Whoever wants to [[solve|solve]] this [[puzzle]] has to explain that."}
+];
+
+/* ---------- STATE ---------- */
+const state = { name:'', asked:[], stars:[], verdict:'', theory:'', bonus:'' };
+const $ = s => document.querySelector(s);
+const T = s => s.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g,(m,txt,key)=>`<span class="kw" tabindex="0" data-w="${key||txt}">${txt}</span>`);
+const plain = s => s.replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g,'$1');
+
+function save(){ try{ localStorage.setItem('empty-desk-hw-v1', JSON.stringify(state)); }catch(e){} }
+function load(){ try{ const r=localStorage.getItem('empty-desk-hw-v1'); if(r) Object.assign(state, JSON.parse(r)); }catch(e){} }
+
+/* ---------- RENDER ---------- */
+function renderQuestions(){
+  const left = MAX_Q - state.asked.length;
+  $('#qcount').textContent = left>0 ? `Questions left: ${left} of ${MAX_Q}` : 'No questions left — time to think.';
+  $('#qlist').innerHTML = QS.map(q=>{
+    const asked = state.asked.includes(q.id);
+    const off = asked || left<=0;
+    return `<button class="q ${asked?'asked':''}" data-q="${q.id}" ${off?'disabled':''}>${q.q}</button>`;
+  }).join('');
+}
+function renderChat(){
+  $('#chat').innerHTML = state.asked.map(id=>{
+    const q = QS.find(x=>x.id===id);
+    const starred = state.stars.includes(id);
+    return `<div class="row me"><div class="bub">${q.q}</div></div>
+            <div class="row"><div class="av">N</div><div class="bub">${T(q.a)}</div>
+            <button class="star" data-star="${id}" title="Mark as important clue" aria-label="Mark as important clue">${starred?'★':'☆'}</button></div>`;
+  }).join('');
+}
+function updateLock(){
+  const open = state.asked.length >= MIN_Q;
+  $('#step2').classList.toggle('locked', !open);
+  $('#lockmsg').style.display = open ? 'none' : 'block';
+}
+function renderToolkit(){
+  $('#toolkit').innerHTML = TOOLKIT.map((t,i)=>`<span class="chip" data-w="${t[1]}" data-i="${i}">${t[0]}</span>`).join('');
+}
+function checkTheory(){
+  const txt = $('#theory').value;
+  let used = 0;
+  document.querySelectorAll('#toolkit .chip').forEach(c=>{
+    const hit = TOOLKIT[Number(c.dataset.i)][2].test(txt);
+    c.classList.toggle('used', hit); if(hit) used++;
+  });
+  $('#usedCount').textContent = used;
+  $('#usedCount').className = used>=TARGET_WORDS ? 'ok' : '';
+  const tt = THE_THE.test(txt);
+  $('#thethe').textContent = tt ? 'found ✓' : 'not yet';
+  $('#thethe').className = tt ? 'ok' : '';
+  const words = (txt.trim().match(/\S+/g)||[]).length;
+  $('#wc').textContent = words;
+  return {used, tt, words, list: TOOLKIT.filter(t=>t[2].test(txt)).map(t=>t[0])};
+}
+
+/* ---------- EVENTS ---------- */
+$('#qlist').addEventListener('click',e=>{
+  const b = e.target.closest('button[data-q]'); if(!b || b.disabled) return;
+  if(state.asked.length>=MAX_Q || state.asked.includes(b.dataset.q)) return;
+  state.asked.push(b.dataset.q); save();
+  renderQuestions(); renderChat(); updateLock();
+  const rows = document.querySelectorAll('#chat .row'); if(rows.length) rows[rows.length-1].scrollIntoView({behavior:'smooth',block:'nearest'});
+});
+$('#chat').addEventListener('click',e=>{
+  const s = e.target.closest('button[data-star]'); if(!s) return;
+  const id = s.dataset.star;
+  state.stars = state.stars.includes(id) ? state.stars.filter(x=>x!==id) : state.stars.concat(id);
+  s.textContent = state.stars.includes(id) ? '★' : '☆'; save();
+});
+$('#studentName').addEventListener('input',e=>{ state.name=e.target.value; save(); });
+$('#theory').addEventListener('input',e=>{ state.theory=e.target.value; save(); checkTheory(); });
+$('#bonus').addEventListener('input',e=>{ state.bonus=e.target.value; save(); });
+document.querySelectorAll('input[name=verdict]').forEach(r=>r.addEventListener('change',e=>{ state.verdict=e.target.value; save(); }));
+
+/* tooltip */
+const tip = $('#tip');
+function showTip(el){
+  const w=el.dataset.w; if(!w||!DEFS[w]) return;
+  tip.innerHTML = DEFS[w].replace(/^([^:]+):/,'<b>$1</b> —');
+  if(!/<b>/.test(tip.innerHTML)) tip.innerHTML = `<b>${el.textContent}</b> — ${DEFS[w]}`;
+  tip.style.display='block';
+  const r=el.getBoundingClientRect(), tw=tip.offsetWidth, th=tip.offsetHeight;
+  tip.style.left = Math.min(Math.max(8,r.left+r.width/2-tw/2), window.innerWidth-tw-8)+'px';
+  let top=r.top-th-8; if(top<8) top=r.bottom+8; tip.style.top=top+'px';
+}
+const hideTip=()=>{ tip.style.display='none'; };
+document.addEventListener('mouseover',e=>{ const t=e.target.closest&&e.target.closest('[data-w]'); if(t) showTip(t); });
+document.addEventListener('mouseout',e=>{ if(e.target.closest&&e.target.closest('[data-w]')) hideTip(); });
+document.addEventListener('click',e=>{ const t=e.target.closest&&e.target.closest('[data-w]'); if(t){ showTip(t); } else hideTip(); });
+document.addEventListener('focusin',e=>{ const t=e.target.closest&&e.target.closest('[data-w]'); if(t) showTip(t); });
+document.addEventListener('focusout',hideTip);
+window.addEventListener('scroll',hideTip,{passive:true});
+
+/* ---------- SUMMARY / SEND ---------- */
+function buildPayload(){
+  const c = checkTheory();
+  const asked = state.asked.map(id=>QS.find(q=>q.id===id).q);
+  const stars = state.stars.filter(id=>state.asked.includes(id)).map(id=>QS.find(q=>q.id===id).q);
+  return {
+    task:'empty-desk', studentName: state.name.trim(), submittedAt: new Date().toISOString(),
+    questionsAsked: asked.join(' | '), starredClues: stars.join(' | '),
+    verdict: state.verdict, theory: state.theory.trim(),
+    toolkitUsed: c.list.join(', '), toolkitCount: c.used, theTheDetected: c.tt ? 'yes' : 'no', wordCount: c.words,
+    bonus: state.bonus.trim(),
+    rawAnswers: JSON.stringify({asked:state.asked, stars:state.stars})
+  };
+}
+function summaryText(p){
+  return [`THE EMPTY DESK — homework`,`Name: ${p.studentName||'—'}`,``,
+    `Questions asked:`, ...state.asked.map((id,i)=>`  ${i+1}. ${QS.find(q=>q.id===id).q}`),``,
+    `Clues marked as important: ${p.starredClues||'—'}`,``,
+    `Verdict: ${p.verdict||'—'}`,``,`Theory:`,p.theory||'—',``,
+    `Toolkit words used (${p.toolkitCount}): ${p.toolkitUsed||'—'}`,`“the…, the…” sentence: ${p.theTheDetected}`,``,
+    `Bonus — goodbye email:`,p.bonus||'—'].join('\n');
+}
+function setMsg(t,cls){ const m=$('#msg'); m.textContent=t; m.className='msg '+(cls||''); }
+
+$('#copyBtn').addEventListener('click',()=>{
+  $('#copyText').value = summaryText(buildPayload());
+  $('#copybox').classList.add('show'); $('#copyText').focus(); $('#copyText').select();
+});
+
+$('#sendBtn').addEventListener('click',async()=>{
+  const p = buildPayload();
+  if(!p.studentName){ setMsg('Please type your name at the top first.','err'); $('#studentName').focus(); return; }
+  if(state.asked.length<MIN_Q){ setMsg(`Ask at least ${MIN_Q} questions first.`,'err'); return; }
+  if(!p.verdict){ setMsg('Choose your verdict: mystery or ordinary resignation?','err'); return; }
+  if(p.wordCount<30){ setMsg('Your theory is still very short — try to write at least 30 words.','err'); return; }
+  if(CONFIG.SUBMIT_URL==='YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL'){
+    setMsg('Sending isn’t connected yet. Please press “Copy my answers” and send the text to your teacher.','err'); return;
+  }
+  const btn=$('#sendBtn'); btn.disabled=true; btn.textContent='Sending…';
+  try{
+    await fetch(CONFIG.SUBMIT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p)});
+    $('#main').style.display='none'; $('#done').style.display='block'; window.scrollTo({top:0,behavior:'smooth'});
+  }catch(e){
+    btn.disabled=false; btn.textContent='Send my case report';
+    setMsg('Something went wrong. Please press “Copy my answers” and send the text to your teacher.','err');
+  }
+});
+
+/* ---------- BOOT ---------- */
+load();
+$('#studentName').value = state.name||'';
+$('#theory').value = state.theory||'';
+$('#bonus').value = state.bonus||'';
+document.querySelectorAll('input[name=verdict]').forEach(r=>{ r.checked = (r.value===state.verdict); });
+renderQuestions(); renderChat(); renderToolkit(); updateLock(); checkTheory();
+</script>
+</body>
+</html>
